@@ -8,14 +8,14 @@ describe("products service", () => {
     service = new ProductsService();
   });
 
-  it("should receive products list", async () => {
+  it("should return products list", async () => {
     const result = await service.getProductsList();
     const expected = products;
 
     expect(result).toEqual(expected);
   });
 
-  it("should receive product by its id", async () => {
+  it("should return product by its id", async () => {
     const firstTwoIds = products.slice(0, 2).map(({ id }) => id);
 
     const first = await service.getProductById(firstTwoIds[0]);

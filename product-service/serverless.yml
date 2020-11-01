@@ -25,6 +25,8 @@ provider:
   runtime: nodejs12.x
   region: eu-west-1
   stage: dev
+  environment:
+    FE_ORIGIN_HOST: https://d19rakpwnlzw45.cloudfront.net
 
 functions:
   get-products-controller:
@@ -45,3 +47,11 @@ functions:
             parameters:
               paths:
                 productId: true
+  get-swagger-file-controller:
+      handler: src/index.getSwaggerJson
+      name: get-swagger-file-controller
+      events:
+        - http:
+            path: documentation
+            method: get
+            cors: true

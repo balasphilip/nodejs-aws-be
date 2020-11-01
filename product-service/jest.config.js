@@ -1,8 +1,6 @@
 module.exports = {
   setupFiles: ['./tests/setup/setEnvironment.js'],
-  transform: {
-    '^.+\\.ts?$': 'babel-jest',
-  },
+  preset: 'ts-jest',
   moduleNameMapper: {
     // Jest needs to know about module aliasing as it doesn't run after webpack magic
     '^@repositories/(.*)$': '<rootDir>/src/repositories/$1',
