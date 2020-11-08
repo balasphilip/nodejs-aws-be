@@ -10,9 +10,14 @@
     "local:invoke:get-products": "sls invoke local --function get-products-controller",
     "local:invoke:get-by-id": "sls invoke local --function get-products-by-id-controller",
     "local:invoke:get-swagger": "npm run swagger && sls invoke local --function get-swagger-file-controller",
-    "local:start": "npm run swagger && sls offline start",
+    "local:start": "npm run swagger && sls offline start --skipCacheInvalidation",
     "package": "npm run swagger && sls package",
-    "deploy": "npm run swagger && sls deploy"
+    "deploy": "npm run swagger && sls deploy",
+    "typeorm": "npx ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js --config ormconfig.js",
+    "migration:create": "yarn typeorm migration:create -n",
+    "migration:run": "yarn typeorm migration:run",
+    "migration:revert": "yarn typeorm migration:revert",
+    "migration:generate": "yarn typeorm migration:generate -n"
   },
   "dependencies": {
     "@dazn/lambda-powertools-cloudwatchevents-client": "^1.26.0",
@@ -27,12 +32,17 @@
     "@middy/core": "^1.4.0",
     "@middy/http-cors": "^1.4.0",
     "@middy/http-json-body-parser": "^1.4.0",
+    "@middy/validator": "^1.4.0",
     "aws-lambda": "^1.0.6",
     "aws-sdk": "^2.773.0",
     "http-errors": "^1.8.0",
+    "pg": "^8.4.2",
+    "reflect-metadata": "^0.1.13",
     "serverless": "^2.8.0",
     "source-map-support": "^0.5.19",
-    "tsoa": "^3.4.0"
+    "tsoa": "^3.4.0",
+    "typeorm": "^0.2.29",
+    "yaml": "^1.10.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.3",
@@ -41,7 +51,7 @@
     "@types/aws-lambda": "^8.10.64",
     "@types/http-errors": "^1.8.0",
     "@types/jest": "^26.0.15",
-    "@types/node": "^10.17.40",
+    "@types/node": "^14.14.6",
     "@typescript-eslint/eslint-plugin": "^2.34.0",
     "@typescript-eslint/parser": "^2.34.0",
     "eslint": "^6.8.0",

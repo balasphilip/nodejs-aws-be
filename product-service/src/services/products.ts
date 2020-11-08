@@ -1,13 +1,35 @@
-import { Controller, Get, Path, Route, Response } from "tsoa";
+import { Controller, Get, Path, Response, Route, Body, Post, Put } from "tsoa";
+import { Connection } from "typeorm";
+import { Product } from "@src/dal/product/product.entity";
+import { Stock } from "@src/dal/product/stock.entity";
+import { ProductRepository } from "@src/dal/product/repository";
 import { ProductDTO } from "./product.dto";
-import products from "./productsList.json";
 import "source-map-support/register";
 
 @Route("products")
 export class ProductsService extends Controller {
+  public static toDTO(product: Product) {
+    const count = product.stock.count;
+
+    delete product.stock;
+
+    return { ...product, count };
+  }
+
+  constructor(
+    private readonly connection: Connection,
+    private readonly productRepository: ProductRepository
+  ) {
+    super();
+  }
+
   @Get()
-  getProductsList(): Promise<ProductDTO[]> {
-    return Promise.resolve(products || []);
+  async getProductsList(): Promise<ProductDTO[]> {
+    const products = await this.productRepository.find({
+      relations: ["stock"],
+    });
+
+    return products.map(ProductsService.toDTO);
   }
 
   @Get("{productId}")
@@ -18,9 +40,9 @@ export class ProductsService extends Controller {
       throw new Error("ApplicationError: Product ID is missed!");
     }
 
-    const product = (products as ProductDTO[]).find(
-      (product: ProductDTO) => product.id === productId
-    );
+    const product = await this.productRepository.findOne(productId, {
+      relations: ["stock"],
+    });
 
     if (!product) {
       throw new Error(
@@ -28,6 +50,45 @@ export class ProductsService extends Controller {
       );
     }
 
-    return product;
+    return ProductsService.toDTO(product);
+  }
+
+  @Post()
+  async createProduct(@Body() product: ProductDTO): Promise<void> {
+    await this.connection.transaction(async (transactionalEntityManager) => {
+      await transactionalEntityManager.save(Product, product);
+      await transactionalEntityManager.save(Stock, {
+        ...new Stock(),
+        count: product.count,
+        product,
+      });
+    });
+  }
+
+  @Put("{productId}")
+  async updateProduct(
+    @Path() productId: string,
+    @Body() product: ProductDTO
+  ): Promise<void> {
+    await this.connection.transaction(async (transactionalEntityManager) => {
+      const productToSave = {
+        id: productId,
+        ...product,
+      } as Partial<ProductDTO>;
+      const productResult = await transactionalEntityManager.findOne<Product>(
+        Product,
+        productId,
+        {
+          relations: ["stock"],
+        }
+      );
+      const stock = productResult.stock;
+
+      await transactionalEntityManager.save(Product, productToSave);
+      await transactionalEntityManager.save(Stock, {
+        ...stock,
+        count: product.count || stock.count,
+      });
+    });
   }
 }

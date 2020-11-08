@@ -15,7 +15,9 @@ plugins:
 custom:
   webpack:
     webpackConfig: ./webpack.config.js
-    includeModules: true
+    includeModules:
+      forceInclude:
+        - pg
   prune:
     automatic: true
     number: 3
@@ -47,6 +49,20 @@ functions:
             parameters:
               paths:
                 productId: true
+  create-product-controller:
+      handler: src/index.createProduct
+      name: create-product-controller
+      events:
+        - http:
+            path: api/products
+            method: post
+  update-product-controller:
+      handler: src/index.updateProduct
+      name: update-product-controller
+      events:
+        - http:
+            path: api/products/{productId}
+            method: put
   get-swagger-file-controller:
       handler: src/index.getSwaggerJson
       name: get-swagger-file-controller
