@@ -1,0 +1,38 @@
+{
+  "extends": [
+    "eslint:recommended",
+    "plugin:jest/all",
+    "plugin:@typescript-eslint/recommended"
+  ],
+  "plugins": [
+    "jest",
+    "@typescript-eslint"
+  ],
+  "root": true,
+  "env": {
+    "node": true,
+    "jest": true,
+    "es6": true
+  },
+  "parser": "@typescript-eslint/parser",
+  "rules": {
+    "jest/prefer-expect-assertions": 1,
+    "jest/no-hooks": 0,
+    "jest/prefer-strict-equal": 0,
+    "jest/require-to-throw-message": 1
+  },
+  "settings": {
+    "import/resolver": {
+      "alias": {
+        "map": [
+          ["@src", "./src"],
+          ["@tests", "./tests"]
+        ],
+        "extensions": [
+          ".ts",
+          ".js"
+        ]
+      }
+    }
+  }
+}
