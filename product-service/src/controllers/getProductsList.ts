@@ -1,16 +1,14 @@
 import { APIGatewayProxyResult, APIGatewayEvent, Context } from "aws-lambda";
 import { InternalServerError } from "http-errors";
-import { ProductsService } from "@src/services/products";
+import { AppContext } from "@src/middlewares/with-context";
 import "source-map-support/register";
 
 export default async (
   _: APIGatewayEvent,
-  _1: Context
+  context: Context & AppContext
 ): Promise<APIGatewayProxyResult> => {
-  const service = new ProductsService(); // todo: find a way to move initialisation logic outside of lambda body
-
   try {
-    const products = await service.getProductsList();
+    const products = await context.appContext.productsService.getProductsList();
 
     return {
       statusCode: 200,

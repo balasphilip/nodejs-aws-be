@@ -15,7 +15,9 @@ plugins:
 custom:
   webpack:
     webpackConfig: ./webpack.config.js
-    includeModules: true
+    includeModules:
+      forceInclude:
+        - pg
   prune:
     automatic: true
     number: 3
@@ -25,6 +27,7 @@ provider:
   runtime: nodejs12.x
   region: eu-west-1
   stage: dev
+  timeout: 20
   environment:
     FE_ORIGIN_HOST: https://d19rakpwnlzw45.cloudfront.net
 
@@ -47,6 +50,22 @@ functions:
             parameters:
               paths:
                 productId: true
+  create-product-controller:
+      handler: src/index.createProduct
+      name: create-product-controller
+      events:
+        - http:
+            path: api/products
+            method: post
+            cors: true
+  update-product-controller:
+      handler: src/index.updateProduct
+      name: update-product-controller
+      events:
+        - http:
+            path: api/products/{productId}
+            method: put
+            cors: true
   get-swagger-file-controller:
       handler: src/index.getSwaggerJson
       name: get-swagger-file-controller
