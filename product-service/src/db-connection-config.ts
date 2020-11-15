@@ -14,7 +14,7 @@ export const connection: ConnectionOptions = {
   migrations: [CreateProducts1604837536330, SeedDataIntoProducts1604837745886],
   entities: [Product, Stock],
 
-  migrationsRun: true,
+  migrationsRun: false,
   logging: ["schema", "error"],
 
   cli: {

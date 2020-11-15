@@ -10,6 +10,7 @@ const env = serverless.provider.environment;
 const config = {
   ...connection,
   // for local usage of:  "npm run typeorm:revert" command, "npm run typeorm:generate"
+  migrationsRun: true,
   host: env.PG_HOST || 'postgres',
   database: env.PG_DATABASE || 'postgres',
   port: Number.parseInt(env.PG_PORT, 10) || 5432,

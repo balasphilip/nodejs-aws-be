@@ -1,6 +1,6 @@
 import { APIGatewayProxyResult, APIGatewayEvent, Context } from "aws-lambda";
 import { BadRequest } from "http-errors";
-import { Context as AppContext } from "@src/middlewares/with-context";
+import { AppContext } from "@src/middlewares/with-context";
 import "source-map-support/register";
 
 export default async (
@@ -10,7 +10,9 @@ export default async (
   const { productId } = event.pathParameters;
 
   try {
-    const product = await context.productsService.getProductById(productId);
+    const product = await context.appContext.productsService.getProductById(
+      productId
+    );
 
     return {
       statusCode: 200,

@@ -9,7 +9,7 @@ import "source-map-support/register";
 @Route("products")
 export class ProductsService extends Controller {
   public static toDTO(product: Product) {
-    const count = product.stock.count;
+    const count = product?.stock?.count;
 
     delete product.stock;
 
@@ -40,7 +40,8 @@ export class ProductsService extends Controller {
       throw new Error("ApplicationError: Product ID is missed!");
     }
 
-    const product = await this.productRepository.findOne(productId, {
+    const [product] = await this.productRepository.find({
+      where: { id: productId },
       relations: ["stock"],
     });
 

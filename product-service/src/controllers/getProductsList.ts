@@ -1,6 +1,6 @@
 import { APIGatewayProxyResult, APIGatewayEvent, Context } from "aws-lambda";
 import { InternalServerError } from "http-errors";
-import { Context as AppContext } from "@src/middlewares/with-context";
+import { AppContext } from "@src/middlewares/with-context";
 import "source-map-support/register";
 
 export default async (
@@ -8,7 +8,7 @@ export default async (
   context: Context & AppContext
 ): Promise<APIGatewayProxyResult> => {
   try {
-    const products = await context.productsService.getProductsList();
+    const products = await context.appContext.productsService.getProductsList();
 
     return {
       statusCode: 200,

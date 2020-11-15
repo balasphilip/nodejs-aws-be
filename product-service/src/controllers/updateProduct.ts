@@ -1,6 +1,6 @@
 import { APIGatewayProxyResult, APIGatewayEvent, Context } from "aws-lambda";
 import { InternalServerError } from "http-errors";
-import { Context as AppContext } from "@src/middlewares/with-context";
+import { AppContext } from "@src/middlewares/with-context";
 import { ProductDTO } from "@src/services/product.dto";
 import "source-map-support/register";
 
@@ -12,7 +12,7 @@ export default async (
   const body = (event.body as unknown) as ProductDTO;
 
   try {
-    await context.productsService.updateProduct(productId, body);
+    await context.appContext.productsService.updateProduct(productId, body);
 
     return {
       statusCode: 200,

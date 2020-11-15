@@ -27,6 +27,7 @@ provider:
   runtime: nodejs12.x
   region: eu-west-1
   stage: dev
+  timeout: 20
   environment:
     FE_ORIGIN_HOST: https://d19rakpwnlzw45.cloudfront.net
 
@@ -56,6 +57,7 @@ functions:
         - http:
             path: api/products
             method: post
+            cors: true
   update-product-controller:
       handler: src/index.updateProduct
       name: update-product-controller
@@ -63,6 +65,7 @@ functions:
         - http:
             path: api/products/{productId}
             method: put
+            cors: true
   get-swagger-file-controller:
       handler: src/index.getSwaggerJson
       name: get-swagger-file-controller

@@ -10,19 +10,21 @@ import { ProductsService } from "@src/services/products";
 
 // dal
 import { Product } from "@src/dal/product/product.entity";
-import { Stock } from "@src/dal/product/stock.entity";
-import { SeedDataIntoProducts1604837745886 } from "@src/migrations/1604837745886-seed-data-into-products";
-import { CreateProducts1604837536330 } from "@src/migrations/1604837536330-create-products-and-seed-data";
 
 import "source-map-support/register";
 
 type WithContextHandler = middy.Middleware<void, any, any>;
 
-let context: Context;
+interface Context {
+  productsService: ProductsService;
+  connection: Connection;
+}
+
+let appContext: Context;
 
 const handler: WithContextHandler = () => ({
   before: async (handler) => {
-    if (!context) {
+    if (!appContext) {
       let conn: Connection;
 
       try {
@@ -30,11 +32,6 @@ const handler: WithContextHandler = () => ({
       } catch (error) {
         conn = await createConnection({
           ...connection,
-          migrations: [
-            CreateProducts1604837536330,
-            SeedDataIntoProducts1604837745886,
-          ],
-          entities: [Product, Stock],
           host: process.env.PG_HOST,
           database: process.env.PG_DATABASE,
           port: Number.parseInt(process.env.PG_PORT, 10),
@@ -45,29 +42,40 @@ const handler: WithContextHandler = () => ({
         console.log("Create Connection", { isConnected: conn.isConnected });
       }
 
-      console.log("Create Context");
+      if (!conn.isConnected) {
+        await conn.connect();
 
-      context = {
-        productsService: new ProductsService(conn, conn.getRepository(Product)),
+        console.log("Open Connection", { isConnected: conn.isConnected });
+      }
+
+      appContext = {
+        productsService: new ProductsService(
+          conn,
+          conn.getRepository<Product>(Product)
+        ),
         connection: conn,
       };
     }
 
-    Object.assign(handler.context, context);
+    Object.assign(handler.context, { appContext });
   },
-  // after: async (handler, next) => {
-  //   next(handler.error);
-  //   // context.connection.close();
-  // },
+  after: async () => {
+    console.log("Cleanup. Close connection");
+
+    await appContext.connection.close();
+    appContext = undefined;
+    // return next();
+    // context.connection.close();
+  },
   // onError: async (handler, next) => {
-  //   next(handler.error);
+  //   await appContext.connection.close();
+  //   // next(handler.error);
   //   // context.connection.close();
   // },
 });
 
-export interface Context {
-  productsService: ProductsService;
-  connection: Connection;
+export interface AppContext {
+  appContext: Context;
 }
 
 export default handler;
