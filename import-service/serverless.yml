@@ -1,0 +1,77 @@
+service: import-service
+
+# Create an optimized package for our functions
+package:
+  individually: true
+
+# You can pin your service to only deploy with a specific Serverless version
+# Check out our docs for more details
+frameworkVersion: '2'
+
+plugins:
+  - serverless-webpack
+  - serverless-prune-plugin
+  - serverless-offline
+custom:
+  webpack:
+    webpackConfig: ./webpack.config.js
+    includeModules:
+      forceExclude:
+        - aws-sdk
+  serverless-offline:
+    port: 3002
+
+  prune:
+    automatic: true
+    number: 3
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  region: eu-west-1
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "s3:ListBucket"
+      Resource:
+        - "arn:aws:s3:::balasphilipawscourseapp-import-service"
+    - Effect: "Allow"
+      Action:
+        - "s3:*"
+      Resource:
+        - "arn:aws:s3:::balasphilipawscourseapp-import-service/*"
+  stage: dev
+  timeout: 20
+  environment:
+    FE_ORIGIN_HOST: https://d19rakpwnlzw45.cloudfront.net
+
+functions:
+  import-products-file-controller:
+      handler: src/index.importProductsFile
+      name: import-products-file-controller
+      events:
+        - http:
+            path: api/import
+            method: get
+            request:
+              parameters:
+                querystrings:
+                  name: true
+  get-swagger-file-controller:
+      handler: src/index.getSwaggerJson
+      name: get-swagger-file-controller-import
+      events:
+        - http:
+            path: import/documentation
+            method: get
+            cors: true
+  import-file-parser-s3-event-handler:
+    handler: src/index.importFileParser
+    name: import-file-parser-s3-event-handler
+    events:
+      - s3:
+          bucket: balasphilipawscourseapp-import-service
+          event: s3:ObjectCreated:*
+          rules:
+            - prefix: uploaded/
+          existing: true
