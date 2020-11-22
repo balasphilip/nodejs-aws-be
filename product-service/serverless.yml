@@ -18,6 +18,8 @@ custom:
     includeModules:
       forceInclude:
         - pg
+  serverless-offline:
+    port: 3001
   prune:
     automatic: true
     number: 3
@@ -71,6 +73,6 @@ functions:
       name: get-swagger-file-controller
       events:
         - http:
-            path: documentation
+            path: products/documentation
             method: get
             cors: true

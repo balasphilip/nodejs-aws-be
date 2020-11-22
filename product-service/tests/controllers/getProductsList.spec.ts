@@ -1,6 +1,6 @@
 import { APIGatewayEvent, Context } from "aws-lambda";
 import getProductsList from "@src/controllers/getProductsList";
-import { Context as AppContext } from "@src/middlewares/with-context";
+import { AppContext } from "@src/middlewares/with-context";
 
 describe("lambda api controller: get products list", () => {
   const handler = getProductsList;
@@ -24,14 +24,14 @@ describe("lambda api controller: get products list", () => {
 
   it("should return products list", async () => {
     const result = await handler(
-      {} as APIGatewayEvent,
       ({
         productsService: {
           getProductsList: jest
             .fn()
             .mockResolvedValue([{ ...product1, stock: { ...stock1 } }]),
         },
-      } as unknown) as Context & AppContext
+      } as unknown) as APIGatewayEvent & AppContext,
+      ({} as unknown) as Context & AppContext
     );
 
     expect(result.statusCode).toEqual(200);

@@ -1,7 +1,7 @@
 import { APIGatewayEvent, Context } from "aws-lambda";
 import { BadRequest } from "http-errors";
 import getProductById from "@src/controllers/getProductById";
-import { Context as AppContext } from "@src/middlewares/with-context";
+import { AppContext } from "@src/middlewares/with-context";
 
 describe("lambda api controller: get product by id", () => {
   const handler = getProductById;
